@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+
+    container_name: tradepilot-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: tradepilot
+      POSTGRES_PASSWORD: tradepilot123
+      POSTGRES_DB: tradepilot
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
