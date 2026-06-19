@@ -363,18 +363,24 @@ function getSeed(symbol: string) {
 function getHistoricalLabels(range: HistoricalRange, points: number): string[] {
   if (range === "1D") {
     return Array.from({ length: points }, (_, index) => {
-      const hour = 9 + Math.floor((index * 7) / 16);
-      const minute = index % 2 === 0 ? "30" : "00";
-      return `${hour}:${minute}`;
-    });
-  }
+      const totalMinutes = 7 * 60 + Math.round((index / Math.max(points - 1, 1)) * 390);
+      const hour24 = Math.floor(totalMinutes / 60);
+      const minute = totalMinutes % 60;
+      const displayHour = hour24 > 12 ? hour24 - 12 : hour24;
 
-  if (range === "1W") {
-    return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"];
+      return `${displayHour}:${minute.toString().padStart(2, "0")}`;
+    });
   }
 
   return Array.from({ length: points }, (_, index) => {
     const remaining = points - index - 1;
+
+    if (range === "1W") {
+      const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"];
+      const labelIndex = Math.floor((index / Math.max(points - 1, 1)) * 6);
+
+      return weekdayLabels[labelIndex] ?? "Today";
+    }
 
     if (range === "1M") {
       return remaining === 0 ? "Today" : `${remaining}D`;
@@ -393,14 +399,14 @@ function generateHistoricalSeries(
   range: HistoricalRange
 ): HistoricalPricePoint[] {
   const pointsByRange: Record<HistoricalRange, number> = {
-    "1D": 18,
-    "1W": 7,
-    "1M": 30,
-    "6M": 26,
-    "1Y": 52
+    "1D": 140,
+    "1W": 120,
+    "1M": 150,
+    "6M": 180,
+    "1Y": 220
   };
   const volatilityByRange: Record<HistoricalRange, number> = {
-    "1D": 0.012,
+    "1D": 0.018,
     "1W": 0.028,
     "1M": 0.07,
     "6M": 0.16,

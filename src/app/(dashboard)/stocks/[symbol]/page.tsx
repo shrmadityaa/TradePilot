@@ -29,7 +29,7 @@ export default async function StockPage({ params }: StockPageProps) {
 
   return (
     <DashboardShell userName={session.user.name}>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <Button asChild variant="ghost">
           <Link href="/dashboard">
             <ArrowLeft className="h-4 w-4" />
@@ -48,8 +48,8 @@ export default async function StockPage({ params }: StockPageProps) {
               historical={stock.historical}
             />
 
-            <section className="rounded-lg border bg-card p-4 shadow-sm sm:p-5">
-              <div className="mb-4">
+            <section className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="mb-3">
                 <h2 className="text-xl font-semibold tracking-tight">Key Metrics</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Core valuation and trading activity at a glance.
