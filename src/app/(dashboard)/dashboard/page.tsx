@@ -1,38 +1,68 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { StockCard } from "@/components/watchlist/stock-card";
+import { StockSearch } from "@/components/watchlist/stock-search";
+import { prisma } from "@/lib/db";
+import { getStockQuote, type StockQuote } from "@/lib/stocks";
 
-const foundationItems = [
-  "Authenticated user session",
-  "PostgreSQL-ready Prisma persistence",
-  "Protected dashboard routing",
-  "Dark and light theme support",
-  "Reusable component primitives",
-  "Route loading and error states"
-];
+export default async function DashboardPage() {
+  const session = await auth();
 
-export default function DashboardPage() {
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const watchlist = await prisma.watchlist.findUnique({
+    where: { userId: session.user.id },
+    include: {
+      stocks: {
+        orderBy: { createdAt: "desc" }
+      }
+    }
+  });
+
+  const stocks =
+    watchlist?.stocks
+      .map((stock) => getStockQuote(stock.symbol))
+      .filter((stock): stock is StockQuote => Boolean(stock)) ?? [];
+
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          The research assistant surface is intentionally empty until stock
-          features are introduced.
-        </p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-2">
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">
+            Watchlist Dashboard
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Track your market shortlist
+          </h1>
+          <p className="max-w-2xl text-muted-foreground">
+            Search symbols, add companies to your list, and monitor mock quote
+            movement from one responsive dashboard.
+          </p>
+        </div>
+        <div className="rounded-lg border bg-card px-4 py-3 text-sm shadow-sm">
+          <p className="text-muted-foreground">Tracked stocks</p>
+          <p className="text-2xl font-semibold">{stocks.length}</p>
+        </div>
       </div>
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {foundationItems.map((item) => (
-          <Card key={item}>
-            <CardHeader>
-              <CardTitle className="text-base">{item}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Foundation layer configured and ready for product-specific work.
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+
+      <StockSearch trackedSymbols={stocks.map((stock) => stock.symbol)} />
+
+      {stocks.length > 0 ? (
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {stocks.map((stock) => (
+            <StockCard key={stock.symbol} stock={stock} />
+          ))}
+        </section>
+      ) : (
+        <section className="rounded-lg border border-dashed bg-card p-8 text-center shadow-sm">
+          <h2 className="text-xl font-semibold tracking-tight">No stocks yet</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+            Use search to add your first stock symbol and build a focused watchlist.
+          </p>
+        </section>
+      )}
     </div>
   );
 }

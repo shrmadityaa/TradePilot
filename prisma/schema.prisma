@@ -17,10 +17,36 @@ model User {
   role          UserRole  @default(USER)
   accounts      Account[]
   sessions      Session[]
+  watchlist     Watchlist?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([email])
+}
+
+model Watchlist {
+  id        String           @id @default(cuid())
+  userId    String           @unique
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stocks    WatchlistStock[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+model WatchlistStock {
+  id          String    @id @default(cuid())
+  watchlistId String
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  symbol      String
+  companyName String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([watchlistId, symbol])
+  @@index([symbol])
+  @@index([watchlistId])
 }
 
 model Account {
