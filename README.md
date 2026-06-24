@@ -40,18 +40,10 @@ npm install
 cp .env.example .env
 ```
 
-Update `.env` with your values:
-
-```env
-DATABASE_URL="postgresql://tradepilot:tradepilot123@localhost:5432/tradepilot?schema=public"
-AUTH_SECRET="replace-with-a-secure-random-secret"
-AUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-Generate a secure auth secret:
+The defaults in `.env.example` match the Docker Compose config, so you only need to replace `AUTH_SECRET` with a secure random value:
 
 ```bash
+# Generate a secure secret and paste it into .env
 openssl rand -base64 32
 ```
 
