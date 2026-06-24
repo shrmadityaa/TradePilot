@@ -26,6 +26,9 @@ export default async function DashboardPage() {
       .map((stock) => getStockQuote(stock.symbol))
       .filter((stock): stock is StockQuote => Boolean(stock)) ?? [];
 
+  const usdStocks = stocks.filter((s) => s.currency === "USD");
+  const inrStocks = stocks.filter((s) => s.currency === "INR");
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -50,11 +53,35 @@ export default async function DashboardPage() {
       <StockSearch trackedSymbols={stocks.map((stock) => stock.symbol)} />
 
       {stocks.length > 0 ? (
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {stocks.map((stock) => (
-            <StockCard key={stock.symbol} stock={stock} />
-          ))}
-        </section>
+        <div className="space-y-8">
+          {usdStocks.length > 0 && (
+            <section>
+              <div className="mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-semibold tracking-tight">US Market</h2>
+                <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">USD</span>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {usdStocks.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {inrStocks.length > 0 && (
+            <section>
+              <div className="mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-semibold tracking-tight">Indian Market</h2>
+                <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">INR</span>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {inrStocks.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       ) : (
         <section className="rounded-lg border border-dashed bg-card p-8 text-center shadow-sm">
           <h2 className="text-xl font-semibold tracking-tight">No stocks yet</h2>

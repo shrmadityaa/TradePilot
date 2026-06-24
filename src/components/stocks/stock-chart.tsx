@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
 import type {
   CurrencyCode,
@@ -41,14 +40,19 @@ export function StockChart({
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
     const pointerX = event.clientX - bounds.left;
-    const index = Math.round((pointerX / bounds.width) * (points.length - 1));
+    const chartWidth = bounds.width * 0.91;
+    const clampedX = Math.min(Math.max(pointerX, 0), chartWidth);
+    const index = Math.round((clampedX / chartWidth) * (points.length - 1));
     const nextIndex = Math.min(Math.max(index, 0), points.length - 1);
 
     setActiveIndex(nextIndex);
   }
 
+  const strokeColor = isPositive ? "rgb(52 211 153)" : "rgb(251 113 133)";
+  const fillColorStart = isPositive ? "rgb(52 211 153)" : "rgb(251 113 133)";
+
   return (
-    <Card className="overflow-hidden border-zinc-800 bg-[#1f1f1f] text-zinc-100 shadow-sm">
+    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="px-4 pt-4 sm:px-6 sm:pt-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
@@ -58,7 +62,7 @@ export function StockChart({
             <div
               className={cn(
                 "mb-1 flex items-center gap-1.5 text-base font-semibold",
-                isPositive ? "text-emerald-400" : "text-rose-400"
+                isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
               )}
             >
               {isPositive ? (
@@ -70,26 +74,26 @@ export function StockChart({
               {dailyChangePercent.toFixed(2)}%
             </div>
           </div>
-          <div className="text-sm text-zinc-400 lg:text-right">
-            <span className="font-medium text-zinc-200">
+          <div className="text-sm text-muted-foreground lg:text-right">
+            <span className="font-medium text-foreground">
               H {formatCurrency(chart.max, currency)}
             </span>
-            <span className="mx-2 text-zinc-600">/</span>
-            <span className="font-medium text-zinc-200">
+            <span className="mx-2 text-border">/</span>
+            <span className="font-medium text-foreground">
               L {formatCurrency(chart.min, currency)}
             </span>
           </div>
         </div>
 
-        <div className="mt-5 border-y border-zinc-800 py-3">
+        <div className="mt-5 border-y py-3">
           <div className="grid grid-cols-5 gap-1 sm:flex sm:items-center sm:justify-between">
             {RANGES.map((range) => (
               <button
                 className={cn(
-                  "h-9 rounded-full px-3 text-sm font-semibold text-zinc-300 transition-colors sm:min-w-16",
+                  "h-9 rounded-full px-3 text-sm font-semibold transition-colors sm:min-w-16",
                   selectedRange === range
-                    ? "bg-zinc-700 text-white"
-                    : "hover:bg-zinc-800 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
                 key={range}
                 onClick={() => {
@@ -104,13 +108,14 @@ export function StockChart({
           </div>
         </div>
       </div>
+
       <div className="px-4 pb-4 sm:px-6 sm:pb-5">
         <div
-          className="group relative h-[280px] w-full touch-none overflow-hidden bg-[#1f1f1f] sm:h-[360px] lg:h-[420px]"
+          className="group relative h-[280px] w-full touch-none overflow-hidden sm:h-[360px] lg:h-[420px]"
           onPointerLeave={() => setActiveIndex(null)}
           onPointerMove={handlePointerMove}
         >
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex flex-col justify-between py-4 text-right text-[11px] font-semibold text-zinc-200 sm:text-sm">
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex flex-col justify-between py-4 text-right text-[11px] font-medium text-muted-foreground sm:text-xs">
             {chart.yTicks.map((tick) => (
               <p key={`${selectedRange}-${tick}-axis`}>
                 {formatCurrency(tick, currency)}
@@ -128,17 +133,17 @@ export function StockChart({
               <linearGradient id="stock-chart-fill" x1="0" x2="0" y1="0" y2="1">
                 <stop
                   offset="0%"
-                  stopColor={isPositive ? "rgb(74 222 128)" : "rgb(251 113 133)"}
-                  stopOpacity="0.34"
+                  stopColor={fillColorStart}
+                  stopOpacity="0.25"
                 />
                 <stop
-                  offset="54%"
-                  stopColor={isPositive ? "rgb(74 222 128)" : "rgb(251 113 133)"}
-                  stopOpacity="0.14"
+                  offset="60%"
+                  stopColor={fillColorStart}
+                  stopOpacity="0.08"
                 />
                 <stop
                   offset="100%"
-                  stopColor={isPositive ? "rgb(74 222 128)" : "rgb(251 113 133)"}
+                  stopColor={fillColorStart}
                   stopOpacity="0"
                 />
               </linearGradient>
@@ -146,8 +151,8 @@ export function StockChart({
             {chart.gridLines.map((line) => (
               <line
                 key={`${selectedRange}-${line}-grid`}
-                stroke="rgb(63 63 70)"
-                strokeOpacity="0.7"
+                className="stroke-border"
+                strokeOpacity="0.5"
                 strokeWidth="0.18"
                 x1="0.2"
                 x2="91"
@@ -158,8 +163,8 @@ export function StockChart({
             {chart.verticalGridLines.map((line) => (
               <line
                 key={`${selectedRange}-${line}-vertical-grid`}
-                stroke="rgb(63 63 70)"
-                strokeOpacity="0.7"
+                className="stroke-border"
+                strokeOpacity="0.5"
                 strokeWidth="0.18"
                 x1={line}
                 x2={line}
@@ -176,56 +181,58 @@ export function StockChart({
               className="transition-all duration-300 ease-out"
               d={chart.linePath}
               fill="none"
-              stroke={isPositive ? "rgb(74 222 128)" : "rgb(251 113 133)"}
+              stroke={strokeColor}
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2.35"
+              strokeWidth="1.5"
               vectorEffect="non-scaling-stroke"
             />
-            {activeCoordinate ? (
-              <>
-                <line
-                  className="opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                  stroke="rgb(212 212 216)"
-                  strokeOpacity="0.55"
-                  strokeDasharray="3 4"
-                  strokeWidth="0.35"
-                  x1={activeCoordinate.x}
-                  x2={activeCoordinate.x}
-                  y1="0"
-                  y2="92"
-                />
-                <circle
-                  className="fill-[#1f1f1f] opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                  cx={activeCoordinate.x}
-                  cy={activeCoordinate.y}
-                  r="1.8"
-                  stroke={isPositive ? "rgb(74 222 128)" : "rgb(251 113 133)"}
-                  strokeWidth="0.8"
-                />
-              </>
+            {activeIndex !== null && activeCoordinate ? (
+              <line
+                stroke={strokeColor}
+                strokeOpacity="0.5"
+                strokeWidth="0.3"
+                x1={activeCoordinate.x}
+                x2={activeCoordinate.x}
+                y1="0"
+                y2="92"
+              />
             ) : null}
           </svg>
 
-          {activePoint && activeCoordinate ? (
-            <div
-              className={cn(
-                "pointer-events-none absolute top-4 z-20 rounded-lg border border-zinc-700 bg-zinc-950/95 px-3 py-2 text-sm shadow-lg backdrop-blur transition-opacity duration-150",
-                activeCoordinate.x > 74 ? "-translate-x-full" : ""
-              )}
-              style={{
-                left: `${Math.min(Math.max(activeCoordinate.x, 8), 92)}%`
-              }}
-            >
-              <p className="font-medium text-zinc-100">{activePoint.label}</p>
-              <p className="mt-1 text-zinc-400">
-                {formatCurrency(activePoint.value, currency)}
-              </p>
-            </div>
+          {activeIndex !== null && activeCoordinate && activePoint ? (
+            <>
+              <div
+                className="pointer-events-none absolute z-20"
+                style={{
+                  left: `${activeCoordinate.x}%`,
+                  top: `${activeCoordinate.y}%`,
+                  transform: "translate(-50%, -50%)"
+                }}
+              >
+                <div
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: strokeColor, boxShadow: `0 0 6px ${strokeColor}` }}
+                />
+              </div>
+
+              <div
+                className="pointer-events-none absolute z-20"
+                style={{
+                  left: `${activeCoordinate.x}%`,
+                  top: `${Math.max(activeCoordinate.y - 5, 1)}%`,
+                  transform: `translateX(${activeCoordinate.x > 80 ? "-90%" : activeCoordinate.x < 10 ? "-10%" : "-50%"})`,
+                }}
+              >
+                <p className="text-sm font-semibold" style={{ color: strokeColor }}>
+                  {formatCurrency(activePoint.value, currency)}
+                </p>
+              </div>
+            </>
           ) : null}
         </div>
 
-        <div className="flex pr-[9%] text-xs font-semibold text-zinc-300 sm:text-sm">
+        <div className="flex pr-[9%] text-xs font-medium text-muted-foreground sm:text-sm">
           {getXAxisLabels(selectedRange, points).map((label) => (
             <span className="flex-1" key={`${selectedRange}-${label}-x-label`}>
               {label}
@@ -233,7 +240,7 @@ export function StockChart({
           ))}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -287,17 +294,17 @@ function getXAxisLabels(
 
 export function StockChartSkeleton() {
   return (
-    <Card className="overflow-hidden border-zinc-800 bg-[#1f1f1f]">
+    <div className="overflow-hidden rounded-lg border bg-card">
       <div className="px-4 pt-4 sm:px-6 sm:pt-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="h-10 w-48 animate-pulse rounded bg-zinc-800" />
-          <div className="h-5 w-36 animate-pulse rounded bg-zinc-800" />
+          <div className="h-10 w-48 animate-pulse rounded bg-muted" />
+          <div className="h-5 w-36 animate-pulse rounded bg-muted" />
         </div>
-        <div className="mt-5 border-y border-zinc-800 py-3">
+        <div className="mt-5 border-y py-3">
           <div className="grid grid-cols-5 gap-1 sm:flex sm:justify-between">
             {Array.from({ length: 5 }, (_, index) => (
               <div
-                className="h-9 rounded-full bg-zinc-800 sm:w-16"
+                className="h-9 rounded-full bg-muted sm:w-16"
                 key={index}
               />
             ))}
@@ -305,8 +312,8 @@ export function StockChartSkeleton() {
         </div>
       </div>
       <div className="px-4 pb-4 sm:px-6 sm:pb-5">
-        <div className="h-[280px] animate-pulse bg-zinc-800 sm:h-[360px] lg:h-[420px]" />
+        <div className="h-[280px] animate-pulse rounded bg-muted sm:h-[360px] lg:h-[420px]" />
       </div>
-    </Card>
+    </div>
   );
 }

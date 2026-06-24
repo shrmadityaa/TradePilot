@@ -18,10 +18,10 @@ export function StockCard({ stock }: StockCardProps) {
     <article className="relative rounded-lg border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:border-primary/40">
       <Link
         aria-label={`View ${stock.symbol} details`}
-        className="absolute inset-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="absolute inset-0 z-[1] rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         href={`/stocks/${stock.symbol}` as Route}
       />
-      <div className="relative flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="truncate text-xl font-semibold tracking-tight">
@@ -35,7 +35,7 @@ export function StockCard({ stock }: StockCardProps) {
             {stock.companyName}
           </p>
         </div>
-        <form action={removeStockFromWatchlistForm} className="relative z-10">
+        <form action={removeStockFromWatchlistForm} className="relative z-[2]">
           <input name="symbol" type="hidden" value={stock.symbol} />
           <Button
             aria-label={`Remove ${stock.symbol}`}
@@ -47,7 +47,7 @@ export function StockCard({ stock }: StockCardProps) {
           </Button>
         </form>
       </div>
-      <div className="relative mt-6 flex items-end justify-between gap-4">
+      <div className="mt-6 flex items-end justify-between gap-4">
         <p className="text-3xl font-semibold tracking-tight">
           {formatCurrency(stock.currentPrice, stock.currency)}
         </p>

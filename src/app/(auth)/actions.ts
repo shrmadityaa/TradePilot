@@ -19,7 +19,8 @@ export async function signupAction(
   const parsed = signupSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
-    password: formData.get("password")
+    password: formData.get("password"),
+    role: formData.get("role")
   });
 
   if (!parsed.success) {
@@ -43,7 +44,8 @@ export async function signupAction(
     data: {
       name: parsed.data.name,
       email: parsed.data.email,
-      passwordHash
+      passwordHash,
+      role: parsed.data.role
     }
   });
 
@@ -79,7 +81,7 @@ export async function loginAction(
       redirectTo: "/dashboard"
     });
   } catch (error) {
-    if (error instanceof AuthError) {
+    if (error instanceof AuthError && error.type === "CredentialsSignin") {
       return { error: "Invalid email or password." };
     }
 

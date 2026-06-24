@@ -1,4 +1,4 @@
-import { Activity, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, Globe, TrendingDown, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import type { StockDetail } from "@/lib/stocks";
 import { cn } from "@/lib/utils";
@@ -13,9 +13,15 @@ export function StockHeader({ stock }: StockHeaderProps) {
   return (
     <section className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="border-b bg-muted/20 px-5 py-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Activity className="h-4 w-4 text-primary" />
-          <span>Live market snapshot</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Activity className="h-4 w-4 text-primary" />
+            <span>Live market snapshot</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Globe className="h-3.5 w-3.5" />
+            <span>{stock.currency === "INR" ? "Indian Market" : "US Market"}</span>
+          </div>
         </div>
       </div>
       <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
@@ -26,6 +32,9 @@ export function StockHeader({ stock }: StockHeaderProps) {
             </h1>
             <span className="rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
               {stock.marketStatus}
+            </span>
+            <span className="rounded-full border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              {stock.currency}
             </span>
           </div>
           <p className="max-w-2xl text-base text-muted-foreground">

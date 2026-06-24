@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import type { AuthActionState } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RoleSelector } from "@/components/auth/role-selector";
 
 type AuthFormProps = {
   mode: "login" | "signup";
@@ -49,6 +50,9 @@ export function AuthForm({ mode, action }: AuthFormProps) {
         required
         type="password"
       />
+      {isSignup ? (
+        <RoleSelector error={state.fieldErrors?.role?.[0]} />
+      ) : null}
       {state.error ? (
         <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {state.error}

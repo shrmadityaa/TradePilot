@@ -1,0 +1,13 @@
+-- AlterEnum: Add new role values
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'RETAIL_INVESTOR';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'TRADER';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'LEARNER';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'ANALYST';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'PLATFORM_ADMIN';
+
+-- Migrate existing data: map old roles to new ones
+UPDATE "User" SET "role" = 'RETAIL_INVESTOR' WHERE "role" = 'USER';
+UPDATE "User" SET "role" = 'PLATFORM_ADMIN' WHERE "role" = 'ADMIN';
+
+-- Update default
+ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'RETAIL_INVESTOR';

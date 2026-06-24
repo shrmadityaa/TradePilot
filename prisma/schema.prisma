@@ -14,10 +14,11 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?
-  role          UserRole  @default(USER)
+  role          UserRole  @default(RETAIL_INVESTOR)
   accounts      Account[]
   sessions      Session[]
   watchlist     Watchlist?
+  holdings      PortfolioHolding[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -47,6 +48,23 @@ model WatchlistStock {
   @@unique([watchlistId, symbol])
   @@index([symbol])
   @@index([watchlistId])
+}
+
+model PortfolioHolding {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol      String
+  companyName String
+  quantity    Float
+  buyPrice    Float
+  buyDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, symbol])
+  @@index([userId])
+  @@index([symbol])
 }
 
 model Account {
@@ -87,6 +105,9 @@ model VerificationToken {
 }
 
 enum UserRole {
-  USER
-  ADMIN
+  RETAIL_INVESTOR
+  TRADER
+  LEARNER
+  ANALYST
+  PLATFORM_ADMIN
 }

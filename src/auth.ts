@@ -45,7 +45,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           name: user.name,
           email: user.email,
-          image: user.image
+          image: user.image,
+          role: user.role
         };
       }
     })
@@ -54,6 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as { role?: string }).role as import("@prisma/client").UserRole | undefined;
       }
 
       return token;
@@ -61,15 +63,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        session.user.role = token.role as import("@prisma/client").UserRole;
       }
 
       return session;
     },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = Boolean(auth?.user);
-      const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
+      const protectedPrefixes = ["/dashboard", "/stocks", "/admin", "/portfolio", "/analytics", "/alerts", "/reports", "/learn"];
+      const isProtected = protectedPrefixes.some((prefix) => nextUrl.pathname.startsWith(prefix));
 
-      if (isDashboardRoute) {
+      if (isProtected) {
         return isLoggedIn;
       }
 

@@ -12,8 +12,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id ?? props.name;
 
     return (
-      <label className="grid gap-2 text-sm font-medium" htmlFor={inputId}>
-        {label ? <span>{label}</span> : null}
+      <div className="grid gap-2 text-sm font-medium">
+        {label ? <label htmlFor={inputId}>{label}</label> : null}
         <input
           id={inputId}
           className={cn(
@@ -27,7 +27,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error ? (
           <span className="text-xs font-normal text-destructive">{error}</span>
         ) : null}
-      </label>
+      </div>
     );
   }
 );
